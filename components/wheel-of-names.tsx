@@ -1,90 +1,22 @@
 'use client'
 
-import React, { useState, useRef, useEffect,useCallback } from 'react'
-
-
+import React, { useState, useRef, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 const COLORS = ['#4285F4', '#34A853', '#FBBC05', '#EA4335', '#FF6D01', '#46BDC6', '#7BAAF7', '#F07B72']
 
-export default function WheelOfNames() {
+export function WheelOfNamesComponent() {
   const [names, setNames] = useState<string[]>([])
   const [currentName, setCurrentName] = useState('')
   const [spinning, setSpinning] = useState(false)
   const [winner, setWinner] = useState('')
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
-
-
-  const drawWheel = useCallback(() => {
-    // Logika untuk menggambar roda.
-
-      const canvas = canvasRef.current
-      if (!canvas) return
-  
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return
-  
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-  
-      const centerX = canvas.width / 2
-      const centerY = canvas.height / 2
-      const radius = Math.min(centerX, centerY) - 10
-  
-      if (names.length === 0) {
-        ctx.font = '20px Arial'
-        ctx.fillStyle = '#000'
-        ctx.textAlign = 'center'
-        ctx.fillText('Add names to spin the wheel', centerX, centerY)
-        return
-      }
-  
-      const sliceAngle = (2 * Math.PI) / names.length
-  
-      names.forEach((name, index) => {
-        const startAngle = index * sliceAngle
-        const endAngle = startAngle + sliceAngle
-  
-        ctx.beginPath()
-        ctx.moveTo(centerX, centerY)
-        ctx.arc(centerX, centerY, radius, startAngle, endAngle)
-        ctx.closePath()
-  
-        ctx.fillStyle = COLORS[index % COLORS.length]
-        ctx.fill()
-  
-        ctx.save()
-        ctx.translate(centerX, centerY)
-        ctx.rotate(startAngle + sliceAngle / 2)
-        ctx.textAlign = 'right'
-        ctx.fillStyle = '#fff'
-        ctx.font = '16px Arial'
-        ctx.fillText(name, radius - 10, 0)
-        ctx.restore()
-      })
-  
-      // Draw center circle
-      ctx.beginPath()
-      ctx.arc(centerX, centerY, 20, 0, 2 * Math.PI)
-      ctx.fillStyle = '#fff'
-      ctx.fill()
-  
-      // Draw spin text
-      ctx.font = '14px Arial'
-      ctx.fillStyle = '#000'
-      ctx.textAlign = 'center'
-      ctx.fillText('Click to spin', centerX, centerY + 5)
-    
-  }, [names]);
-
-
-  
   useEffect(() => {
-    drawWheel();
-  }, [drawWheel]);
-  
+    drawWheel()
+  }, [names])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCurrentName(e.target.value)
@@ -103,7 +35,63 @@ export default function WheelOfNames() {
     }
   }
 
+  const drawWheel = () => {
+    const canvas = canvasRef.current
+    if (!canvas) return
 
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+    const centerX = canvas.width / 2
+    const centerY = canvas.height / 2
+    const radius = Math.min(centerX, centerY) - 10
+
+    if (names.length === 0) {
+      ctx.font = '20px Arial'
+      ctx.fillStyle = '#000'
+      ctx.textAlign = 'center'
+      ctx.fillText('Add names to spin the wheel', centerX, centerY)
+      return
+    }
+
+    const sliceAngle = (2 * Math.PI) / names.length
+
+    names.forEach((name, index) => {
+      const startAngle = index * sliceAngle
+      const endAngle = startAngle + sliceAngle
+
+      ctx.beginPath()
+      ctx.moveTo(centerX, centerY)
+      ctx.arc(centerX, centerY, radius, startAngle, endAngle)
+      ctx.closePath()
+
+      ctx.fillStyle = COLORS[index % COLORS.length]
+      ctx.fill()
+
+      ctx.save()
+      ctx.translate(centerX, centerY)
+      ctx.rotate(startAngle + sliceAngle / 2)
+      ctx.textAlign = 'right'
+      ctx.fillStyle = '#fff'
+      ctx.font = '16px Arial'
+      ctx.fillText(name, radius - 10, 0)
+      ctx.restore()
+    })
+
+    // Draw center circle
+    ctx.beginPath()
+    ctx.arc(centerX, centerY, 20, 0, 2 * Math.PI)
+    ctx.fillStyle = '#fff'
+    ctx.fill()
+
+    // Draw spin text
+    ctx.font = '14px Arial'
+    ctx.fillStyle = '#000'
+    ctx.textAlign = 'center'
+    ctx.fillText('Click to spin', centerX, centerY + 5)
+  }
 
   const spinWheel = () => {
     if (names.length === 0 || spinning) return
